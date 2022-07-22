@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+  <title>Hello World!</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    body {
+      /* position: relative; */
+    }
+
+    .button-wrapper {
+      top: 41px;
+      position: absolute;
+      display: flex;
+      justify-content: start;
+      width: 98%;
+      background-color: #e7eaed;
+      padding: 5px;
+    }
+
+    .button-wrapper input[type='text'] {
+      min-width: 300px;
+    }
+    .button-wrapper4{
+    top:72px;
+    position: absolute;
+}
+
+
+  </style>
+</head>
+
+<body>
+  <tab-group new-tab-button="true" sortable="true">
+
+
+  </tab-group>
+  <div class="button-wrapper">
+
+    <div><button id="backButton"><i class="fa fa-arrow-left" aria-hidden="true"></i></button><button
+        id="forwardButton"><i class="fa fa-arrow-right" aria-hidden="true"></i></button></div>
+    <div><button id="refreshButton"><i class="fa fa-refresh" aria-hidden="true"></i></button></div>
+    <div><input type="text" id="searchBox"><button id="searchButton"><i class="fa fa-search"
+          aria-hidden="true"></i></button></div>
+    <div><button id="bookmarkButton"><i class="fa fa-bookmark-o" aria-hidden="true"></i></button></div>
+  </div>
+  <div class="button-wrapper4">
+    <select id="selectUrl">
+      <option>-select-</option>
+    </select>
+  </div>
+  <script src="node_modules/electron-tabs/dist/electron-tabs.js"></script>
+
+  <script>
+    const tabGroup = document.querySelector('tab-group')
+
+    const tab = tabGroup.addTab({
+      title: "electron-tabs on NPM",
+      src: "https://www.google.com/",
+      active: true
+    });
+
+
+    tabGroup.on("tab-added", (tab, tabGroup) => { console.log("tab-added") });
+    tabGroup.on("tab-removed", (tab, tabGroup) => { });
+    tabGroup.on("tab-active", (tab, tabGroup) => {
+
+
+      console.log("tab-active")
+    });
+    tab.on("webview-ready", (tab) => { });
+    tab.on("webview-dom-ready", (tab) => { });
+    tab.on("title-changed", (title, tab) => { });
+    tab.on("badge-changed", (badge, tab) => { });
+    tab.on("icon-changed", (icon, tab) => { });
+    tab.on("active", (tab) => { console.log("tab-active") });
+    tab.on("inactive", (tab) => { });
+    tab.on("visible", (tab) => { });
+    tab.on("hidden", (tab) => { });
+    tab.on("close", (tab) => { console.log("tab-close") });
+    tab.on("closing", (tab, abort) => { });
+
+
+    document.getElementById("searchButton").addEventListener('click', () => {
+      var url = document.getElementById("searchBox").value;
+      let curruntTab = tabGroup.getActiveTab()
+      curruntTab.webview.src = url;
+      console.log(url, curruntTab)
+    })
+
+    document.getElementById("backButton").addEventListener('click', () => {
+      let curruntTab = tabGroup.getActiveTab()
+      curruntTab.webview.goBack()
+    })
+    document.getElementById("forwardButton").addEventListener('click', () => {
+      let curruntTab = tabGroup.getActiveTab()
+      curruntTab.webview.goForward()
+    })
+
+    document.getElementById("refreshButton").addEventListener('click', () => {
+      let curruntTab = tabGroup.getActiveTab()
+      curruntTab.webview.reload()
+    })
+
+
+    const Store = require('electron-store');
+    const store = new Store();
+    store.set('bookmark',store.get('bookmark')?store.get('bookmark'):[])
+    document.getElementById("bookmarkButton").addEventListener('click', () => {
+      let curruntTab = tabGroup.getActiveTab()
+      // console.log(curruntTab.webview.src)
+      let previousUrls = store.get("bookmark")
+      store.set('bookmark', [...previousUrls,curruntTab.webview.src]);
+    console.log(store.get('bookmark'));
+    })
+
+
+    let urlList = store.get('bookmark')
+    urlList.map((item)=>{
+     let op1 = document.createElement('option')
+     op1.value=item;
+     op1.innerHTML=item;
+     document.getElementById('selectUrl').appendChild(op1)
+    })
+ 
+    document.getElementById('selectUrl').addEventListener('change', () => {
+      let curruntTab = tabGroup.getActiveTab()
+      console.log(document.getElementById('selectUrl').value)
+      curruntTab.webview.src= document.getElementById('selectUrl').value
+    })
+
+
+  </script>
+</body>
+
+</html>
